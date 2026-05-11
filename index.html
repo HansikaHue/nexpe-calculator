@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexPe — Ownership, Redefined</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #c0392b;
+    --red-bright: #e74c3c;
+    --red-glow: rgba(192, 57, 43, 0.18);
+    --red-subtle: rgba(192, 57, 43, 0.08);
+    --green: #27ae60;
+    --green-bright: #2ecc71;
+    --green-glow: rgba(39, 174, 96, 0.15);
+    --bg: #080c10;
+    --surface: #0e1318;
+    --surface-2: #131920;
+    --border: rgba(255,255,255,0.07);
+    --border-active: rgba(192, 57, 43, 0.5);
+    --text: #f0f4f8;
+    --text-muted: #6b7a8d;
+    --text-dim: #3d4a57;
+    --mono: 'DM Mono', monospace;
+    --display: 'Syne', sans-serif;
+    --body: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 500px;
+    background: radial-gradient(ellipse, rgba(192,57,43,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 4rem;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 3.5rem;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .logo-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--red);
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 18px;
+    color: white;
+    box-shadow: 0 0 24px rgba(192,57,43,0.4);
+    letter-spacing: -1px;
+  }
+
+  .logo-text {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .logo-text span { color: var(--red); }
+
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.75rem;
+    opacity: 0.9;
+  }
+
+  .header h1 {
+    font-family: var(--display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  .header h1 em {
+    font-style: normal;
+    color: var(--red);
+  }
+
+  .header p {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 440px;
+    line-height: 1.7;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1rem;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .card:nth-child(2) { animation-delay: 0.1s; }
+  .card:nth-child(3) { animation-delay: 0.2s; }
+  .card:nth-child(4) { animation-delay: 0.3s; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 8px var(--red);
+    flex-shrink: 0;
+  }
+
+  .card-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ── SELECTS ── */
+  .select-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .select-wrap {
+    position: relative;
+  }
+
+  .select-wrap label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  select {
+    width: 100%;
+    padding: 12px 36px 12px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 13px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7a8d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: var(--border-active);
+    box-shadow: 0 0 0 3px var(--red-subtle);
+  }
+
+  select option { background: #131920; }
+
+  /* ── SLIDERS ── */
+  .slider-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .slider-item {}
+
+  .slider-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .slider-name {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .slider-val {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--red-bright);
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 12px rgba(192,57,43,0.6);
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: grab;
+  }
+
+  input[type=range]::-webkit-slider-thumb:active {
+    transform: scale(1.3);
+    cursor: grabbing;
+    box-shadow: 0 0 20px rgba(192,57,43,0.8);
+  }
+
+  input[type=range]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border: none;
+    border-radius: 50%;
+    background: var(--red);
+    cursor: grab;
+  }
+
+  /* ── COMPARISON CARDS ── */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .plan {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    position: relative;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .plan.featured {
+    border-color: var(--red);
+    background: linear-gradient(160deg, rgba(192,57,43,0.06) 0%, var(--surface-2) 60%);
+    box-shadow: 0 0 40px rgba(192,57,43,0.1), inset 0 1px 0 rgba(192,57,43,0.2);
+  }
+
+  .plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
+
+  .plan.featured .plan-badge {
+    background: rgba(192,57,43,0.15);
+    color: var(--red-bright);
+    border: 1px solid rgba(192,57,43,0.3);
+  }
+
+  .plan:not(.featured) .plan-badge {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .plan-name {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    font-family: var(--mono);
+  }
+
+  .plan-price {
+    font-family: var(--display);
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .plan-net {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  .plan-net .highlight { font-weight: 500; }
+  .plan-net .green { color: var(--green-bright); }
+  .plan-net .red { color: var(--red-bright); }
+
+  .plan-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0.75rem 0;
+  }
+
+  .plan-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 11px;
+  }
+
+  .plan-row .k { color: var(--text-dim); }
+  .plan-row .v { font-weight: 500; font-family: var(--mono); font-size: 11px; }
+  .plan-row .v.green { color: var(--green-bright); }
+  .plan-row .v.red { color: var(--red-bright); }
+  .plan-row .v.neutral { color: var(--text-muted); }
+
+  /* ── SAVINGS STRIP ── */
+  .savings-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .stat {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .stat.green-stat {
+    border-color: rgba(39,174,96,0.2);
+    background: linear-gradient(160deg, rgba(39,174,96,0.05), var(--surface-2));
+  }
+
+  .stat-num {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+
+  .stat-num.green { color: var(--green-bright); }
+  .stat-num.neutral { color: var(--text); }
+
+  .stat-lbl {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  /* ── BEHAVIOR NOTE ── */
+  .behavior-note {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 1rem 1.25rem;
+    background: rgba(39,174,96,0.05);
+    border: 1px solid rgba(39,174,96,0.15);
+    border-radius: 10px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  .behavior-note .icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .behavior-note strong { color: var(--green-bright); font-weight: 500; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    margin-top: 3rem;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+
+  .footer span { color: var(--red); }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.25rem 0;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .wrapper { padding: 2rem 1rem 3rem; }
+    .card { padding: 1.25rem; }
+    .select-grid { grid-template-columns: 1fr; }
+    .slider-group { grid-template-columns: 1fr; }
+    .comparison-grid { grid-template-columns: 1fr; }
+    .savings-strip { grid-template-columns: 1fr 1fr; }
+    .header h1 { font-size: 1.75rem; }
+  }
+
+  /* ── TRACK FILL ── */
+  .slider-track-wrap { position: relative; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-mark">
+      <div class="logo-icon">N<span style="color:rgba(255,255,255,0.6);font-size:14px">P</span></div>
+      <div class="logo-text">Nex<span>Pe</span></div>
+    </div>
+    <div class="header-eyebrow">Live Cost Calculator</div>
+    <h1>See what ownership<br>actually <em>costs you</em></h1>
+    <p>Adjust your profile below. Watch in real time how NexPe compares against bank EMIs and BNPL — after buyback, after interest, after everything.</p>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-dot"></div>
+      <div class="card-label">Your Profile</div>
+    </div>
+
+    <div class="select-grid">
+      <div class="select-wrap">
+        <label>Subscription Plan</label>
+        <select id="planType" onchange="calc()">
+          <option value="smart">Smart Plan — ₹3,735/mo</option>
+          <option value="instant">Instant Plan — ₹4,150/mo</option>
+        </select>
+      </div>
+      <div class="select-wrap">
+        <label>Device Tier</label>
+        <select id="deviceTier" onchange="calc()">
+          <option value="85500">Mid-Premium — ₹85,500</option>
+          <option value="65000">Budget Premium — ₹65,000</option>
+          <option value="110000">Flagship — ₹1,10,000</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="slider-group">
+      <div class="slider-item">
+        <div class="slider-top">
+          <span class="slider-name">Usage Duration</span>
+          <span class="slider-val" id="months-out">18 months</span>
+        </div>
+        <input type="range" min="6" max="30" value="18" step="1" id="months" oninput="calc()">
+      </div>
+      <div class="slider-item">
+        <div class="slider-top">
+          <span class="slider-name">Upgrade At</span>
+          <span class="slider-val" id="upgrade-out">Month 12</span>
+        </div>
+        <input type="range" min="6" max="24" value="12" step="1" id="upgradeAt" oninput="calc()">
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARISON CARD -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-dot"></div>
+      <div class="card-label">Cost Comparison</div>
+    </div>
+    <div class="comparison-grid" id="cards"></div>
+  </div>
+
+  <!-- SAVINGS CARD -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-dot"></div>
+      <div class="card-label">Your Savings vs Alternatives</div>
+    </div>
+    <div class="savings-strip" id="strip"></div>
+    <hr class="section-divider">
+    <div class="behavior-note" id="behaviorNote"></div>
+  </div>
+
+  <div class="footer">
+    Built for <span>NexPe</span> &nbsp;·&nbsp; GCC 2026 &nbsp;·&nbsp; Synergy, Ramjas College &nbsp;·&nbsp; Team Deckers
+  </div>
+
+</div>
+
+<script>
+  const FX = 95;
+  const BUYBACK_INR = 300 * FX;        // ₹28,500
+  const UPGRADE_FEE = 30 * FX;         // ₹2,850
+  const PROTECTION_MONTHLY = 4 * FX;   // ₹380/mo
+  const PROTECTION_ATTACH = 0.55;
+
+  function fmt(n, compact = false) {
+    const rounded = Math.round(n);
+    if (compact && rounded >= 100000) {
+      return '₹' + (rounded / 100000).toFixed(1) + 'L';
+    }
+    return '₹' + rounded.toLocaleString('en-IN');
+  }
+
+  function tick(el) {
+    el.style.transform = 'scale(1.04)';
+    el.style.transition = 'transform 0.12s ease';
+    setTimeout(() => {
+      el.style.transform = '';
+    }, 120);
+  }
+
+  function calc() {
+    const plan = document.getElementById('planType').value;
+    const deviceINR = parseInt(document.getElementById('deviceTier').value);
+    const months = parseInt(document.getElementById('months').value);
+    const upgradeAt = parseInt(document.getElementById('upgradeAt').value);
+
+    document.getElementById('months-out').textContent = months + ' months';
+    document.getElementById('upgrade-out').textContent = 'Month ' + upgradeAt;
+
+    const monthlyFee = plan === 'smart' ? 3735 : 4150;
+    const defaultRate = plan === 'smart' ? 0.04 : 0.06;
+    const nexpeTotal = monthlyFee * months;
+    const nexpeNet = nexpeTotal - BUYBACK_INR;
+    const upgradeCharge = upgradeAt <= months ? UPGRADE_FEE : 0;
+
+    // EMI at 18% p.a. (1.5%/mo)
+    const emiRate = 0.015;
+    const emiMonthly = Math.round(deviceINR * emiRate * Math.pow(1 + emiRate, months) / (Math.pow(1 + emiRate, months) - 1));
+    const emiTotal = emiMonthly * months;
+
+    // BNPL at ~18% effective
+    const bnplMonthly = Math.round(deviceINR / months * 1.18);
+    const bnplTotal = bnplMonthly * months;
+
+    const savingsVsEmi = emiTotal - nexpeNet;
+    const savingsVsBnpl = bnplTotal - nexpeNet;
+    const discountMonths = Math.max(0, months - 6);
+    const behaviorSaving = months >= 6 ? discountMonths * 175 : 0;
+
+    const planLabel = plan === 'smart' ? 'Smart Plan' : 'Instant Plan';
+    const planDefault = plan === 'smart' ? '4%' : '6%';
+
+    document.getElementById('cards').innerHTML = `
+      <div class="plan featured">
+        <div class="plan-badge">⬡ NexPe ${planLabel}</div>
+        <div class="plan-name">Monthly fee</div>
+        <div class="plan-price">${fmt(monthlyFee)}</div>
+        <div class="plan-net">Net after buyback: <span class="highlight green">${fmt(nexpeNet)}</span></div>
+        <hr class="plan-divider">
+        <div class="plan-row"><span class="k">Total paid</span><span class="v neutral">${fmt(nexpeTotal)}</span></div>
+        <div class="plan-row"><span class="k">Buyback credit</span><span class="v green">-${fmt(BUYBACK_INR)}</span></div>
+        <div class="plan-row"><span class="k">Protection</span><span class="v green">Included</span></div>
+        <div class="plan-row"><span class="k">Default risk</span><span class="v neutral">${planDefault}</span></div>
+        <div class="plan-row"><span class="k">Exit anytime</span><span class="v green">Yes</span></div>
+        <div class="plan-row"><span class="k">Ownership path</span><span class="v green">Yes</span></div>
+      </div>
+      <div class="plan">
+        <div class="plan-badge">Bank EMI</div>
+        <div class="plan-name">~18% p.a. / 1.5% monthly</div>
+        <div class="plan-price">${fmt(emiMonthly)}</div>
+        <div class="plan-net">Total outflow: <span class="highlight red">${fmt(emiTotal)}</span></div>
+        <hr class="plan-divider">
+        <div class="plan-row"><span class="k">Total paid</span><span class="v red">${fmt(emiTotal)}</span></div>
+        <div class="plan-row"><span class="k">Buyback credit</span><span class="v red">None</span></div>
+        <div class="plan-row"><span class="k">Protection</span><span class="v red">Extra cost</span></div>
+        <div class="plan-row"><span class="k">Interest</span><span class="v red">Yes</span></div>
+        <div class="plan-row"><span class="k">Exit anytime</span><span class="v red">Locked in</span></div>
+        <div class="plan-row"><span class="k">Ownership path</span><span class="v neutral">Immediate</span></div>
+      </div>
+      <div class="plan">
+        <div class="plan-badge">BNPL / Pay Later</div>
+        <div class="plan-name">~18% effective / hidden fees</div>
+        <div class="plan-price">${fmt(bnplMonthly)}</div>
+        <div class="plan-net">Total outflow: <span class="highlight red">${fmt(bnplTotal)}</span></div>
+        <hr class="plan-divider">
+        <div class="plan-row"><span class="k">Total paid</span><span class="v red">${fmt(bnplTotal)}</span></div>
+        <div class="plan-row"><span class="k">Buyback credit</span><span class="v red">None</span></div>
+        <div class="plan-row"><span class="k">Protection</span><span class="v red">None</span></div>
+        <div class="plan-row"><span class="k">Hidden charges</span><span class="v red">Yes</span></div>
+        <div class="plan-row"><span class="k">Exit anytime</span><span class="v red">Penalties</span></div>
+        <div class="plan-row"><span class="k">Ownership path</span><span class="v red">No</span></div>
+      </div>
+    `;
+
+    document.getElementById('strip').innerHTML = `
+      <div class="stat green-stat">
+        <div class="stat-num green">${fmt(savingsVsEmi, true)}</div>
+        <div class="stat-lbl">Saved vs EMI</div>
+      </div>
+      <div class="stat green-stat">
+        <div class="stat-num green">${fmt(savingsVsBnpl, true)}</div>
+        <div class="stat-lbl">Saved vs BNPL</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num neutral">${fmt(BUYBACK_INR, true)}</div>
+        <div class="stat-lbl">Buyback — Day 1 Guarantee</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num neutral">${months}</div>
+        <div class="stat-lbl">Months, zero-penalty exit</div>
+      </div>
+    `;
+
+    document.getElementById('behaviorNote').innerHTML = months >= 6
+      ? `<span class="icon">↗</span><span><strong>Behavior reward unlocked.</strong> After 6 months of on-time payments, your fee drops ₹150–200/month. Over the remaining <strong>${discountMonths} months</strong>, that's an additional <strong>${fmt(behaviorSaving)}</strong> saved — automatically applied.</span>`
+      : `<span class="icon">○</span><span>Stay with NexPe for <strong>6+ months</strong> to unlock the behavior reward — ₹150–200/month fee reduction for consistent on-time AutoPay.</span>`;
+
+    // Update range track fill
+    document.querySelectorAll('input[type=range]').forEach(r => {
+      const pct = ((r.value - r.min) / (r.max - r.min)) * 100;
+      r.style.background = `linear-gradient(to right, #c0392b ${pct}%, rgba(255,255,255,0.07) ${pct}%)`;
+    });
+  }
+
+  // Init
+  calc();
+
+  // Animate on slider drag
+  document.querySelectorAll('input[type=range]').forEach(r => {
+    r.addEventListener('input', () => {
+      const valEl = r.id === 'months' ? document.getElementById('months-out') : document.getElementById('upgrade-out');
+      tick(valEl);
+    });
+  });
+</script>
+</body>
+</html>
